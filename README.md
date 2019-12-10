@@ -33,7 +33,7 @@ Also, register the Facade like so:
 You can publish the configuration file using this command:
 
 ```bash
-php artisan vendor:publish --provider="Maxtee\Blockchain\BlockchainServiceProvider"
+php artisan vendor:publish --provider="Botdigit\Blockchain\BlockchainServiceProvider"
 ```
 
 A configuration-file named `blockchain.php` with default settings will be placed in your `config` directory:
