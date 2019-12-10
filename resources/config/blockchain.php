@@ -11,16 +11,28 @@
 
 
 return [
-	/**
-	* Blockchain api provided by blockchain.com
-	*/
-	'blockchain_api' => env('BLOCKCHAIN_API'),
-	/**
-	* This is the default charge fee bitcoin miners at 0.00001
-	*/
+    /**
+     * Blockchain api provided by blockchain.com
+     */
+    'blockchain_api' => env('BLOCKCHAIN_API'),
+    /**
+     * This is the default charge fee bitcoin miners at 0.00001
+     */
     'defaultBTCFee' => env('DEFAULT_BTC_FEE'),
-    /*
-    * This is your own transaction fee in btc
-    */
+    /**
+     * This is your own transaction fee in btc
+     */
     'transactionBTCFee' => env('TRANSACTION_BTC_FEE'),
+    /**
+     * Blockchain root URL
+     */
+    'BLOCKCHAIN_ROOT' => env('BLOCKCHAIN_ROOT'),
+    /**
+     * Block chain recive_root URL
+     */
+    'blockchain_receive_root' => env('BLOCKCHAIN_RECEIVE_ROOT'),
+    /**
+     * XPUB Public key for your wallet
+     */
+    'BLOCKCHAIN_XPUB' => env('BLOCKCHAIN_XPUB'),
 ];

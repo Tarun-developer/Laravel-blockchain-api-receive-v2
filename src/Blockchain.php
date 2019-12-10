@@ -165,7 +165,7 @@ class Blockchain
  		//make api calls
         $params = array(
             'password' => $password,
-            'api_code' => config('app.blockchain_api'),
+            'api_code' => $this->api_key,
             'email' => Auth::User()->email,
             'label' => 'Main-receiving-Address',
         );
