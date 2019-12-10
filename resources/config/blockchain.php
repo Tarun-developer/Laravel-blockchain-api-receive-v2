@@ -26,7 +26,7 @@ return [
     /**
      * Blockchain root URL
      */
-    'BLOCKCHAIN_ROOT' => env('BLOCKCHAIN_ROOT'),
+    'blockchain_root' => env('BLOCKCHAIN_ROOT'),
     /**
      * Block chain recive_root URL
      */
@@ -34,5 +34,5 @@ return [
     /**
      * XPUB Public key for your wallet
      */
-    'BLOCKCHAIN_XPUB' => env('BLOCKCHAIN_XPUB'),
+    'blockchain_XPUB' => env('BLOCKCHAIN_XPUB'),
 ];

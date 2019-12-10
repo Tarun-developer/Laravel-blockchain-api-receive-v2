@@ -20,7 +20,7 @@ class BlockchainServiceProvider extends ServiceProvider {
      * @return void
      */
     public function boot() {
-        include __DIR__ . '/../Http/routes.php';
+//        include __DIR__ . '/../Http/routes.php';
         $config = realpath(__DIR__ . '/../resources/config/blockchain.php');
 
         $this->publishes([
