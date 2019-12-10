@@ -13,7 +13,7 @@ namespace Botdigit\Blockchain;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
-use Maxtee\Blockchain\Exceptions\BlockchainException;
+use Botdigit\Blockchain\Exceptions\BlockchainException;
 use Auth;
 use Illuminate\Support\Str;
 
