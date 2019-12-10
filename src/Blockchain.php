@@ -333,16 +333,7 @@ class Blockchain {
         $parameters = 'xpub=' . $my_xpub . '&callback=' . urlencode($my_callback_url) . '&key=' . $my_api_key;
 
         try {
-
-
-
             $response = file_get_contents($root_url . '?' . $parameters);
-
-            //$object = json_decode($response);
-
-//            $local_url = $this->local_url;
-//            $url = "$local_url/api/v2/create?" . http_build_query($params);
-//            $json_data = file_get_contents($url);
             $json_feed = json_decode($response, true);
             return $json_feed;
         } catch (\ErrorException $e) {

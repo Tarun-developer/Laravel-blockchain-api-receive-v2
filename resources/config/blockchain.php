@@ -34,5 +34,5 @@ return [
     /**
      * XPUB Public key for your wallet
      */
-    'blockchain_XPUB' => env('BLOCKCHAIN_XPUB'),
+    'blockchain_xpub' => env('BLOCKCHAIN_XPUB'),
 ];
