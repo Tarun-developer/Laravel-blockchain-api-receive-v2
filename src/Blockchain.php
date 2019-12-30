@@ -68,6 +68,7 @@ class Blockchain {
     protected $url;
 
     public function __construct() {
+
         $this->setAPIKey();
         $this->setDefaultFee();
         $this->setTransactionFee();
@@ -75,7 +76,6 @@ class Blockchain {
         $this->setblockchain_receive_root();
         $this->setblockchain_XPUB();
         $this->setblockchain_root();
-        $this->url = $url;
     }
 
     /**
@@ -95,6 +95,10 @@ class Blockchain {
     /**
      * get users transaction fee from config file called blockchain.php
      */
+    private function setTransactionFee() {
+        $this->trans_fee = config('blockchain.transactionBTCFee');
+    }
+
     private function setblockchain_receive_root() {
         $this->blockchain_receive_root = config('blockchain.blockchain_receive_root');
     }
@@ -103,13 +107,14 @@ class Blockchain {
      * get users transaction fee from config file called blockchain.php
      */
     private function setblockchain_XPUB() {
-        $this->blockchain_XPUB = config('blockchain.blockchain_XPUB');
+        $this->blockchain_xpub = config('blockchain.blockchain_xpub');
     }
 
     /**
      * get users transaction fee from config file called blockchain.php
      */
     private function setblockchain_root() {
+
         $this->blockchain_root = config('blockchain.blockchain_root');
     }
 
@@ -161,10 +166,12 @@ class Blockchain {
      * @return integer btc value
      * @throws BlochainException
      */
-    public function convertCurrencyToBTC(string $cur, int $value) {
+    public function convertCurrencyToBTC(string $cur, float $value) {
+
         if (strlen($cur) > 3) {
             throw new BlockchainException;
         }
+
         $body = array(
             'currency' => strtoupper($cur),
             'value' => $value,
@@ -187,25 +194,25 @@ class Blockchain {
      * @param string randomly generated password
      * @throws Exceptions
      */
-    public function createWallet($password) {
+    public function createWallet($password, $label, $email) {
         //generate password
         $password = $password;
         //make api calls
         $params = array(
             'password' => $password,
             'api_code' => $this->api_key,
-            'email' => Auth::User()->email,
-            'label' => 'Main-receiving-Address',
+            'email' => $email,
+            'label' => $label,
         );
-        try {
-            $local_url = $this->local_url;
-            $url = "$local_url/api/v2/create?" . http_build_query($params);
-            $json_data = file_get_contents($url);
-            $json_feed = json_decode($json_data, true);
-            return $json_feed;
-        } catch (\ErrorException $e) {
-            throw new BlockchainException('Connection lost. Please try again');
-        }
+//        try {
+        $local_url = $this->local_url;
+        $url = "$local_url/api/v2/create?" . http_build_query($params);
+        $json_data = file_get_contents($url);
+        $json_feed = json_decode($json_data, true);
+        return $json_feed;
+//        } catch (\ErrorException $e) {
+//            throw new BlockchainException('Connection lost. Please try again');
+//        }
     }
 
     /**
@@ -216,10 +223,12 @@ class Blockchain {
     public function getWalletBalance($guid, $password) {
         $params = array(
             'password' => $password,
+            'api_code' => $this->api_key,
         );
         $local_url = $this->local_url;
         $url = "$local_url/merchant/$guid/balance?" .
                 http_build_query($params);
+
         $json_data = file_get_contents($url);
         $json_feed = json_decode($json_data);
         if ($json_feed->balance == 0) {
@@ -236,7 +245,7 @@ class Blockchain {
      * @param optional string from_address
      * @return array of the result
      */
-    public function makeOutgoingPayment($guid, $amount, $password, $to_address, $from_address = '') {
+    public function makeOutgoingPayment($guid, float $amount, $password, $to_address, $from_address = '') {
         //convert btc amount to satoshi by multiplying by 100000000
         $amount_satoshi = bcmul($this::SATOSHI, $amount, 8);
         //make api calls
@@ -246,8 +255,8 @@ class Blockchain {
             'api_code' => $this->api_key,
             'to' => $to_address,
             'amount' => $amount_satoshi,
-            'from' => $from_address,
-                // 'fee' => $fee,
+            'from' => 0,
+            'fee' => 1000,
         );
         $local_url = $this->local_url;
         $url = "$local_url/merchant/$guid/payment?" . http_build_query($params);
@@ -293,6 +302,47 @@ class Blockchain {
         return $json_feed;
     }
 
+    /** Enable HD Functionality
+     *  Endpoint: /merchant/:guid/enableHD
+     *        Query Parameters:
+     *        password - main wallet password (required)
+     *        api_code - blockchain.info wallet api code (optional)
+     *       This will upgrade a wallet to an HD (Hierarchical Deterministic) Wallet, which allows the use of accounts. See BIP32 for more information on HD wallets and accounts.
+     *
+     *       List Active HD Accounts
+     */
+    public function enableHDFuncationality($guid, $password) {
+        $local_url = $this->local_url;
+        $params = array(
+            'password' => $password,
+            'api_code' => $this->api_key,
+        );
+        $url = "$local_url/merchant/$guid/enableHD?" . http_build_query($params);
+        $json_data = file_get_contents($url);
+        $json_feed = json_decode($json_data, true);
+        return $json_feed;
+    }
+
+    /**
+     * List Active HD Accounts
+     * Endpoint: /merchant/:guid/accounts
+     * Query Parameters:
+     * password - main wallet password (required)
+     * api_code - blockchain.info wallet api code (optional)
+     */
+    public function listHDAccounts($guid, $password) {
+        $local_url = $this->local_url;
+        $params = array(
+            'password' => $password,
+            // 'second_password ' => our second Blockchain Wallet password if double encryption is enabled,
+            'api_code' => $this->api_key, //optional
+        );
+        $url = "$local_url/merchant/$guid/accounts?" . http_build_query($params);
+        $json_data = file_get_contents($url);
+        $json_feed = json_decode($json_data, true);
+        return $json_feed;
+    }
+
     /**
      * Get the whole response from a get operation
      * @return array
@@ -312,29 +362,17 @@ class Blockchain {
      * @throws Exceptions
      */
     public function createReceivingAddress($invoice_id) {
-        //generate password
-        $password = $password;
-        //make api calls
-//        $params = array(
-//            'password' => $password,
-//            'api_code' => $this->api_key,
-//            'email' => Auth::User()->email,
-//            'label' => 'Main-receiving-Address',
-//        );
         $secret = 'ZzsMLGKe162CfA5EcG6j';
-
-        $my_xpub = $this->blockchain_XPUB;
+        $my_xpub = env('BLOCKCHAIN_XPUB');
         $my_api_key = $this->api_key;
-        $base_url = $this->url->to('/');
-        $my_callback_url = $base_url . '/blockchain_callback?invoice_id=' . $invoice_id . '&secret=' . $secret;
-
-        $root_url = $this->blockchain_root . '/receive';
-
+        $base_url = env('APP_URL');
+        $my_callback_url = $base_url . '/admin/blockchain_callback?invoice_id=' . $invoice_id . '&secret=' . $secret;
+        $root_url = env('BLOCKCHAIN_RECEIVE_ROOT') . '/receive';
         $parameters = 'xpub=' . $my_xpub . '&callback=' . urlencode($my_callback_url) . '&key=' . $my_api_key;
-
         try {
             $response = file_get_contents($root_url . '?' . $parameters);
             $json_feed = json_decode($response, true);
+
             return $json_feed;
         } catch (\ErrorException $e) {
             throw new BlockchainException('Connection lost. Please try again');
